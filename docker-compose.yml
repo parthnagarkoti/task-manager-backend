@@ -22,21 +22,25 @@ services:
       retries: 5
 
   # ── Spring Boot App ───────────────────────────────────────────────
-  # Uncomment this after Step 7 (Dockerfile is added)
-  # app:
-  #   build: .
-  #   container_name: taskmanagement-app
-  #   restart: unless-stopped
-  #   depends_on:
-  #     mysql:
-  #       condition: service_healthy
-  #   environment:
-  #     DB_USERNAME: ${DB_USERNAME}
-  #     DB_PASSWORD: ${DB_PASSWORD}
-  #     JWT_SECRET: ${JWT_SECRET}
-  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskmanagement?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
-  #   ports:
-  #     - "8080:8080"
+  app:
+    build: .
+    container_name: taskmanagement-app
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      # Inside the compose network, MySQL is reachable by service name "mysql"
+      # on its container-internal port 3306 (the 3307 host mapping above is
+      # only relevant when connecting from outside Docker).
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskmanagement?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    ports:
+      # Host 8080/8081 are already used by other local services on this
+      # machine — mapped to 8082 here; adjust if that's free on yours.
+      - "8082:8081"
 
 volumes:
   mysql_data:
