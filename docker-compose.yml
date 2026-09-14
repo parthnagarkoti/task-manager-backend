@@ -1,0 +1,42 @@
+services:
+
+  # ── MySQL 8 Database ──────────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: taskmanagement-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: taskmanagement
+      MYSQL_USER: ${DB_USERNAME}
+      MYSQL_PASSWORD: ${DB_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${DB_ROOT_PASSWORD}
+    ports:
+      - "3306:3306"
+    volumes:
+      # Persist MySQL data across container restarts
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ── Spring Boot App ───────────────────────────────────────────────
+  # Uncomment this after Step 7 (Dockerfile is added)
+  # app:
+  #   build: .
+  #   container_name: taskmanagement-app
+  #   restart: unless-stopped
+  #   depends_on:
+  #     mysql:
+  #       condition: service_healthy
+  #   environment:
+  #     DB_USERNAME: ${DB_USERNAME}
+  #     DB_PASSWORD: ${DB_PASSWORD}
+  #     JWT_SECRET: ${JWT_SECRET}
+  #     SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/taskmanagement?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+  #   ports:
+  #     - "8080:8080"
+
+volumes:
+  mysql_data:
